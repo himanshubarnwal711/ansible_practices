@@ -1,0 +1,59 @@
+---
+- hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Update all Debian/Ubuntu packages to their latest version
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+        name: "*"
+        state: latest
+
+    # - name: Install security updates
+    #   ansible.builtin.apt:
+    #     name: "{{ item }}"
+    #     state: latest
+    #   loop:
+    #     - openssl
+    #     - openssh
+
+    - name: Check if openssl is installed
+      ansible.builtin.shell: dpkg -l | grep '^ii' | grep -qw openssl
+      register: openssl_installed
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Check if openssh is installed
+      ansible.builtin.shell: dpkg -l | grep '^ii' | grep -qw openssh-client
+      register: openssh_installed
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Install openssl if not installed
+      ansible.builtin.apt:
+        name: openssl
+        state: present
+      when: openssl_installed.rc != 0
+
+    - name: Install openssh if not installed
+      ansible.builtin.apt:
+        name: openssh-client
+        state: present
+      when: openssh_installed.rc != 0
+      ignore_errors: yes 
+    
+    - name: Check if docker is installed
+      ansible.builtin.command: docker --version
+      register: output
+      ignore_errors: yes    
+    
+    - ansible.builtin.debug:
+        var: output
+    
+    - name: Install docker
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+      when: output.failed
+        

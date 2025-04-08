@@ -1,0 +1,24 @@
+---
+- name: Terminate specific EC2 instances
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    aws_region: ap-south-1
+    instance_ids:
+      - i-03d56da92558c1ad6
+      - i-0e9b86fbaacd162d4
+
+  tasks:
+    - name: Terminate each EC2 instance
+      amazon.aws.ec2_instance:
+        region: "{{ aws_region }}"
+        instance_ids: ["{{ item }}"]
+        state: absent
+      loop: "{{ instance_ids }}"
+      register: termination_results
+
+    - name: Show termination results
+      debug:
+        var: termination_results

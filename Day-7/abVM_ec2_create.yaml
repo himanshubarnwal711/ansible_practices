@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+      type: "t2.micro"
+      # instance_names:
+      #   - ubuntu-instance-1
+      #   - ubuntu-instance-2
+      #   - centos-instance
+      # image_id:
+      #   - ami-0e35ddab05955cf57 #Ubunut
+      #   - ami-00070b90e273aab88 #Centos
+      #   - ami-002f6e91abff6eb96 #Amazon-Linux
+
+  tasks:
+    - name: Create EC2 instances
+      amazon.aws.ec2_instance:
+        name: "{{ item.name }}"
+        key_name: "himtest"
+        instance_type: "{{ type }}"
+        security_groups:
+            - launch-wizard-1
+        region: ap-south-1
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        network:
+          assign_public_ip: true
+        image_id: "{{ item.image }}"
+        tags:
+          environment: "{{ item.name }}"
+      loop:
+        - { image: "ami-0e35ddab05955cf57", name: "ubuntu-instance" }
+        - { image: "ami-002f6e91abff6eb96", name: "amazon-instance" }
+        - { image: "ami-00070b90e273aab88", name: "centos-instance" }

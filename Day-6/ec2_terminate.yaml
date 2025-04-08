@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: ec2
+      vars:
+        ec2_state: absent

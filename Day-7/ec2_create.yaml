@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    type: "t2.micro"
+    instance_names:
+      - ubuntu-instance-1
+      - ubuntu-instance-2
+
+  tasks:
+    - name: Launch Ubuntu EC2 instances with unique names
+      amazon.aws.ec2_instance:
+        name: "{{ item }}"
+        key_name: "himtest"
+        vpc_subnet_id: subnet-00ca73fb0b4ceb383
+        instance_type: "{{ type }}"
+        security_groups:
+          - launch-wizard-1
+        region: ap-south-1
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        network:
+          assign_public_ip: true
+        image_id: ami-0e35ddab05955cf57  # Ubuntu AMI
+        tags:
+          Name: "{{ item }}"
+          Environment: Testing
+        state: "{{ ec2_state | default('present') }}"
+      loop: "{{ instance_names }}"
+
+    - name: Launch CentOS EC2 instance
+      amazon.aws.ec2_instance:
+        name: "centos-instance"
+        key_name: "himtest"
+        vpc_subnet_id: subnet-00ca73fb0b4ceb383
+        instance_type: "{{ type }}"
+        security_groups:
+          - launch-wizard-1
+        region: ap-south-1
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        network:
+          assign_public_ip: true
+        image_id: ami-00070b90e273aab88  # CentOS AMI
+        tags:
+          Name: centos-instance
+          Environment: Testing
+        state: "{{ ec2_state | default('present') }}"

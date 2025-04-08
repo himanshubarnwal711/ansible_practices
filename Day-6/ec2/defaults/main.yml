@@ -1,0 +1,4 @@
+---
+# The preference for variables goes in priority from defaults to vars. So first the variables from defaults will be selected rather than vars.
+# defaults file for ec2
+type: "t2.micro"
